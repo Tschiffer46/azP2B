@@ -52,8 +52,7 @@ npx prisma db seed
 
 These steps are performed **once** before merging. All require logging in as **`root`** in Terminus:
 
-1. **Install Docker** (if not already installed): `curl -fsSL https://get.docker.com | sh`  
-   *(This is the [official Docker install script](https://docs.docker.com/engine/install/). You can review it first at https://get.docker.com before running.)*
+1. **Docker is already installed** (v29.2.1 confirmed) — no action needed
 2. **Add `deploy` to the docker group**: `usermod -aG docker deploy`
 3. **Add Nginx virtual host** for `padeltobusiness.se` → `proxy_pass http://localhost:3000`
 4. **Get SSL certificate**: `certbot --nginx -d padeltobusiness.se -d www.padeltobusiness.se`

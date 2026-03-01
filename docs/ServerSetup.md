@@ -2,7 +2,7 @@
 
 This guide is written specifically for the Hetzner server that **already runs azprofil.se and agiletransition.se** via Nginx. You are using **Terminus** as your SSH client.
 
-azP2B adds one new thing to that server: **Docker**. Everything else (Nginx, the `deploy` user, SSH keys) is already in place.
+Everything needed is already in place: Nginx, the `deploy` user, SSH keys — and **Docker 29.2.1** (confirmed installed).
 
 ---
 
@@ -23,34 +23,28 @@ Open your `root` SSH session on the Hetzner server.
 
 ---
 
-## Step 2 — Check if Docker is already installed
+## Step 2 — Confirm Docker and Docker Compose are available
 
-```bash
-docker --version
-```
-
-- If you see a version number (e.g. `Docker version 27.x.x`) → skip to **Step 4**.
-- If you see `command not found` → continue to Step 3.
-
----
-
-## Step 3 — Install Docker
-
-Run as `root`:
-
-```bash
-curl -fsSL https://get.docker.com | sh
-```
-
-This is the [official Docker install script](https://docs.docker.com/engine/install/). You can preview what it does first by opening `https://get.docker.com` in a browser.  
-Verify it worked:
+**Docker 29.2.1 is already installed on the server.** Run these to double-check before continuing:
 
 ```bash
 docker --version
 docker compose version
 ```
 
-Both should print version numbers.
+Expected output — both should print version numbers:
+```
+Docker version 29.2.1, build a5c7197
+Docker Compose version v2.x.x
+```
+
+→ Proceed directly to **Step 4** (Docker install is not needed).
+
+---
+
+## Step 3 — ~~Install Docker~~ (already done)
+
+Docker 29.2.1 is already installed. Skip this step.
 
 ---
 
