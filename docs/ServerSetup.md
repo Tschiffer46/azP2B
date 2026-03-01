@@ -106,8 +106,8 @@ Finally, open `https://azp2b.agiletransition.se` in a browser. You should see th
 **`docker: permission denied` when running as deploy**
 The group change from Step 1 hasn't taken effect in the current session. In Terminus, close the `deploy` session and open a fresh one, then try again.
 
-**`p2b-db` container is restarting**
-The database is still initialising on first start. Wait 30 seconds and re-run `docker compose ps`. If it keeps restarting, check the logs:
+**`p2b-db` container is restarting or unhealthy**
+The database is still initialising on first start. The health check allows up to 120 seconds for initialisation. Wait a minute or two and re-run `docker compose ps`. If it keeps restarting or stays unhealthy, check the logs:
 ```bash
 docker compose -f /home/deploy/hosting/docker-compose.yml logs --tail=50 p2b-db
 ```

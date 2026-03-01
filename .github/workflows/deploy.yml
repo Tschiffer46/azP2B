@@ -122,7 +122,7 @@ jobs:
               '      interval: 10s\n'
               '      timeout: 5s\n'
               '      retries: 5\n'
-              '      start_period: 60s\n'
+              '      start_period: 120s\n'
               '    networks:\n'
               '      - web\n'
           )
@@ -139,9 +139,17 @@ jobs:
               flags=re.MULTILINE
           )
 
-          # Add p2b-db service if not already present (use regex to avoid
-          # matching "p2b-db:" inside the depends_on block of azp2b)
-          if not re.search(r'^  p2b-db:', content, re.MULTILINE):
+          # Replace the p2b-db service block if it already exists, otherwise
+          # insert it after the azp2b block. This ensures healthcheck config
+          # is always up-to-date on the server.
+          if re.search(r'^  p2b-db:', content, re.MULTILINE):
+              content = re.sub(
+                  r'^  p2b-db:\n(?:(?!  \S).*\n)*',
+                  NEW_P2B_DB_BLOCK + '\n',
+                  content,
+                  flags=re.MULTILINE
+              )
+          else:
               content = content.replace(
                   NEW_AZP2B_BLOCK + '\n',
                   NEW_AZP2B_BLOCK + '\n' + NEW_P2B_DB_BLOCK + '\n'
