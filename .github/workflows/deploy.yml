@@ -1,7 +1,7 @@
 # Required GitHub Secrets:
-#   HETZNER_HOST      - IP or hostname of the Hetzner server
-#   HETZNER_USER      - SSH username (deploy)
-#   HETZNER_SSH_KEY   - Private SSH key for the deploy user
+#   SERVER_HOST       - IP or hostname of the Hetzner server
+#   SERVER_USER       - SSH username (deploy)
+#   SERVER_SSH_KEY    - Private SSH key for the deploy user
 #   DB_PASSWORD       - MariaDB user password
 #   DB_ROOT_PASSWORD  - MariaDB root password
 #   ADMIN_PASSWORD    - Admin dashboard password
@@ -69,13 +69,19 @@ jobs:
           tags: ghcr.io/tschiffer46/azp2b:latest
 
       - name: Setup SSH
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.HETZNER_SSH_KEY }}" > ~/.ssh/id_ed25519
+          echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -H ${{ secrets.HETZNER_HOST }} >> ~/.ssh/known_hosts
+          [ -n "$SERVER_HOST" ] || { echo "Error: SERVER_HOST secret is not set"; exit 1; }
+          ssh-keyscan -H "$SERVER_HOST" >> ~/.ssh/known_hosts
 
       - name: Update master docker-compose.yml on server
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
         run: |
           # Write the update script to a temp file (single-quoted heredoc keeps ${...} as literals)
           cat << 'PYEOF' > /tmp/update_compose.py
@@ -160,7 +166,7 @@ jobs:
 
           # Run the script on the server
           cat /tmp/update_compose.py | ssh -i ~/.ssh/id_ed25519 \
-            ${{ secrets.HETZNER_USER }}@${{ secrets.HETZNER_HOST }} \
+            "$SERVER_USER"@"$SERVER_HOST" \
             python3
 
       - name: Write .env.p2b on server
@@ -173,6 +179,8 @@ jobs:
           SMTP_USER: ${{ secrets.SMTP_USER }}
           SMTP_PASS: ${{ secrets.SMTP_PASS }}
           SMTP_FROM: ${{ secrets.SMTP_FROM }}
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
         run: |
           {
             printf 'DATABASE_URL=mysql://p2b:%s@p2b-db:3306/p2b\n' "$DB_PASSWORD"
@@ -185,17 +193,23 @@ jobs:
             printf 'SMTP_PASS=%s\n' "$SMTP_PASS"
             printf 'SMTP_FROM=%s\n' "$SMTP_FROM"
           } | ssh -i ~/.ssh/id_ed25519 \
-              ${{ secrets.HETZNER_USER }}@${{ secrets.HETZNER_HOST }} \
+              "$SERVER_USER"@"$SERVER_HOST" \
               'cat > /home/deploy/hosting/.env.p2b'
 
       - name: Pull updated images on server
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
         run: |
           ssh -i ~/.ssh/id_ed25519 \
-            ${{ secrets.HETZNER_USER }}@${{ secrets.HETZNER_HOST }} \
+            "$SERVER_USER"@"$SERVER_HOST" \
             'docker compose -f /home/deploy/hosting/docker-compose.yml pull azp2b p2b-db'
 
       - name: Start containers on server
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
         run: |
           ssh -i ~/.ssh/id_ed25519 \
-            ${{ secrets.HETZNER_USER }}@${{ secrets.HETZNER_HOST }} \
+            "$SERVER_USER"@"$SERVER_HOST" \
             'docker compose -f /home/deploy/hosting/docker-compose.yml up -d azp2b p2b-db'
