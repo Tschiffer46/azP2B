@@ -1,8 +1,11 @@
 # Required GitHub Secrets:
 #   HETZNER_HOST      - IP address or hostname of the Hetzner server
-#   HETZNER_USER      - SSH username
-#   HETZNER_SSH_KEY   - Private SSH key content
-#   GHCR_TOKEN        - GitHub Personal Access Token with packages:write
+#                       (same server that runs azprofil.se and agiletransition.se)
+#   HETZNER_USER      - SSH username; set to 'deploy'
+#                       (same deploy user used by other sites on this server)
+#   HETZNER_SSH_KEY   - Private SSH key for the deploy user
+#                       (same key used by azprofil/agiletransition GitHub Actions)
+#   GHCR_TOKEN        - GitHub Personal Access Token with packages:read and packages:write
 #   DB_PASSWORD       - MariaDB user password
 #   DB_ROOT_PASSWORD  - MariaDB root password
 #   ADMIN_PASSWORD    - Admin dashboard password
@@ -13,6 +16,8 @@
 #   SMTP_USER         - SMTP login username
 #   SMTP_PASS         - SMTP login password
 #   SMTP_FROM         - From address (e.g. info@padeltobusiness.se)
+#
+# One-time server setup required before first deploy — see docs/ServerSetup.md
 
 name: Deploy to Hetzner
 

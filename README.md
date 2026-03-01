@@ -46,33 +46,27 @@ npx prisma db seed
 
 ## Hetzner Deployment
 
-### One-time server setup
+> **Full instructions:** See [`docs/ServerSetup.md`](docs/ServerSetup.md) for a complete, step-by-step guide written for this specific server environment (existing Nginx server, `deploy` user, Terminus SSH client).
 
-Run these commands **once** on your Hetzner server (SSH in first):
+### One-time server setup (summary)
 
-```bash
-# 1. Install Docker (on Debian/Ubuntu Hetzner images)
-curl -fsSL https://get.docker.com | sh
-sudo usermod -aG docker $USER
-# Log out and back in so the group change takes effect
+These steps are performed **once** before merging. All require logging in as **`root`** in Terminus:
 
-# 2. Create the working directory
-mkdir -p ~/p2b
-```
+1. **Install Docker** (if not already installed): `curl -fsSL https://get.docker.com | sh`  
+   *(This is the [official Docker install script](https://docs.docker.com/engine/install/). You can review it first at https://get.docker.com before running.)*
+2. **Add `deploy` to the docker group**: `usermod -aG docker deploy`
+3. **Add Nginx virtual host** for `padeltobusiness.se` → `proxy_pass http://localhost:3000`
+4. **Get SSL certificate**: `certbot --nginx -d padeltobusiness.se -d www.padeltobusiness.se`
 
-That's it. The GitHub Actions workflow handles everything else automatically on each deploy:
-- Copies the latest `docker-compose.yml` to `~/p2b/`
-- Writes a `.env` file from your GitHub Secrets
-- Authenticates with GHCR, pulls the new image, restarts containers
-- Runs Prisma database migrations (via the container entrypoint)
+After that, **merge the PR**. GitHub Actions handles everything else.
 
 ### Required GitHub Secrets
 
 | Secret | Description |
 |--------|-------------|
-| `HETZNER_HOST` | Server IP or hostname |
-| `HETZNER_USER` | SSH username (e.g. `root` or `deploy`) |
-| `HETZNER_SSH_KEY` | Full private SSH key content (e.g. paste `~/.ssh/id_ed25519`) |
+| `HETZNER_HOST` | Server IP or hostname (same server as azprofil/agiletransition) |
+| `HETZNER_USER` | SSH username — set to **`deploy`** |
+| `HETZNER_SSH_KEY` | Private SSH key for the `deploy` user (same key used by other sites) |
 | `GHCR_TOKEN` | GitHub PAT with `packages:read` and `packages:write` scopes |
 | `DB_PASSWORD` | MariaDB user password (choose a strong password) |
 | `DB_ROOT_PASSWORD` | MariaDB root password (choose a strong password) |
@@ -93,29 +87,13 @@ That's it. The GitHub Actions workflow handles everything else automatically on 
 Push to `main` automatically:
 1. Runs `next lint`
 2. Builds and pushes Docker image to `ghcr.io/tschiffer46/azp2b:latest`
-3. Copies `docker-compose.yml` to `~/p2b/` on the server
-4. Writes `.env` to `~/p2b/` from GitHub Secrets
-5. Logs in to GHCR on the server and pulls the new image
-6. Restarts containers with `docker compose up -d`
-7. Container entrypoint runs `prisma migrate deploy` before starting the Next.js server
+3. SSH into server as `deploy`: creates `~/p2b/`, copies `docker-compose.yml`, writes `.env` from Secrets
+4. Logs in to GHCR on the server, pulls the new image, restarts containers
+5. Container entrypoint runs `prisma migrate deploy` then starts the Next.js app on port 3000
 
 ### Verifying after the first deploy
 
-Once the Actions deploy job goes green, SSH into the server and check:
-
-```bash
-# All containers should show as "running"
-docker compose -f ~/p2b/docker-compose.yml ps
-
-# Tail app logs (Ctrl-C to stop)
-docker compose -f ~/p2b/docker-compose.yml logs -f app
-
-# Confirm the DB tables were created (enter the DB_PASSWORD you set in GitHub Secrets)
-docker compose -f ~/p2b/docker-compose.yml exec db \
-  mariadb -u p2b -p p2b -e "SHOW TABLES;"
-```
-
-The site is served on port **3000**. Point your reverse proxy (nginx/Caddy) or Hetzner load balancer at `:3000`.
+See [`docs/ServerSetup.md` → Step 8](docs/ServerSetup.md#step-8----verify-the-deployment-after-merge) for the full verification checklist with expected outputs.
 
 ---
 
