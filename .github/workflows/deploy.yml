@@ -122,6 +122,7 @@ jobs:
               '      interval: 10s\n'
               '      timeout: 5s\n'
               '      retries: 5\n'
+              '      start_period: 60s\n'
               '    networks:\n'
               '      - web\n'
           )
