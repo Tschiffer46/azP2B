@@ -36,7 +36,7 @@ jobs:
       - name: Prepare remote directory
         run: |
           ssh -i ~/.ssh/id_ed25519 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
-            "(test -w ~/hosting/sites/azp2b/dist || rm -rf ~/hosting/sites/azp2b/dist) && mkdir -p ~/hosting/sites/azp2b/dist"
+            "sudo mkdir -p ~/hosting/sites/azp2b/dist && sudo chown -R \$(id -u):\$(id -g) ~/hosting/sites/azp2b/dist"
 
       - name: Deploy to server
         run: |
