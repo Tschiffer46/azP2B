@@ -59,10 +59,11 @@ docs/               # Project documentation
 ## Required GitHub Secrets
 | Secret | Description |
 |--------|-------------|
-| `HETZNER_HOST` | Server IP or hostname |
-| `HETZNER_USER` | SSH username |
-| `HETZNER_SSH_KEY` | Private SSH key |
-| `GHCR_TOKEN` | GitHub PAT with packages:write |
+| `SERVER_HOST` | Server IP or hostname |
+| `SERVER_USER` | SSH username (`deploy`) |
+| `SERVER_SSH_KEY` | Private SSH key for the `deploy` user (generate on server — see `docs/ServerSetup.md`) |
 | `DB_PASSWORD` | MariaDB user password |
 | `DB_ROOT_PASSWORD` | MariaDB root password |
 | `ADMIN_PASSWORD` | Admin dashboard password |
+
+> Note: `GITHUB_TOKEN` is provided automatically by GitHub Actions for pushing to GHCR — no extra secret needed.
