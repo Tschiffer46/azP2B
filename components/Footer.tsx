@@ -32,7 +32,7 @@ export default function Footer({ t }: FooterProps) {
           {/* Contact */}
           <div>
             <h3 className="text-p2b-white font-semibold mb-3">
-              {t.footer.address}
+              Kontakt
             </h3>
             <p className="text-p2b-grey text-sm">{t.footer.address}</p>
             <a

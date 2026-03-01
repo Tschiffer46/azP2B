@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
-function nextTuesday(fromDate: Date): Date {
+function findNextTuesdayFrom(fromDate: Date): Date {
   const d = new Date(fromDate)
   const day = d.getDay()
   const daysUntilTuesday = (2 - day + 7) % 7 || 7
@@ -16,7 +16,7 @@ async function main() {
 
   // Event 1: first Tuesday of next month at 18:00
   const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1)
-  const event1Date = nextTuesday(nextMonth)
+  const event1Date = findNextTuesdayFrom(nextMonth)
   event1Date.setHours(18, 0, 0, 0)
 
   // Event 2: two weeks after event 1 at 17:00
@@ -30,7 +30,7 @@ async function main() {
     event2Date.getMonth() + 1,
     1
   )
-  const event3Date = nextTuesday(monthAfterEvent2)
+  const event3Date = findNextTuesdayFrom(monthAfterEvent2)
   event3Date.setHours(18, 30, 0, 0)
 
   await prisma.event.createMany({
