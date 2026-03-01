@@ -11,7 +11,7 @@ Production website for **padeltobusiness.se** — a Swedish padel sports busines
 | Styling | Tailwind CSS 3 |
 | Database | MariaDB via Prisma ORM |
 | Email | Nodemailer (provider-agnostic) |
-| i18n | Next.js built-in i18n routing |
+| i18n | Middleware-based locale routing (`/sv`, `/da`) |
 | Deployment | Docker + Docker Compose on Hetzner |
 | CI/CD | GitHub Actions |
 
@@ -46,8 +46,8 @@ docs/               # Project documentation
 
 ## Internationalisation
 - **Languages:** Swedish (`sv`, default) and Danish (`da`)
-- **Routing:** `/sv/...` and `/da/...` via Next.js `i18n` config
-- **Translations:** loaded server-side via `lib/i18n.ts`
+- **Routing:** `/sv/...` and `/da/...` — middleware in `middleware.ts` redirects `/` based on `Accept-Language`
+- **Translations:** loaded server-side via `lib/i18n.ts`, passed as props — no client-side i18n library
 
 ## Deployment Flow
 1. Push to `main` triggers GitHub Actions

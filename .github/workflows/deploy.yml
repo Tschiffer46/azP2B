@@ -6,6 +6,13 @@
 #   DB_PASSWORD       - MariaDB user password
 #   DB_ROOT_PASSWORD  - MariaDB root password
 #   ADMIN_PASSWORD    - Admin dashboard password
+#
+# Optional GitHub Secrets (leave empty to disable email sending):
+#   SMTP_HOST         - SMTP server hostname
+#   SMTP_PORT         - SMTP port (e.g. 587)
+#   SMTP_USER         - SMTP login username
+#   SMTP_PASS         - SMTP login password
+#   SMTP_FROM         - From address (e.g. info@padeltobusiness.se)
 
 name: Deploy to Hetzner
 
@@ -68,10 +75,45 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H ${{ secrets.HETZNER_HOST }} >> ~/.ssh/known_hosts
 
+      - name: Ensure server directory exists
+        run: |
+          ssh -i ~/.ssh/id_ed25519 \
+            ${{ secrets.HETZNER_USER }}@${{ secrets.HETZNER_HOST }} \
+            'mkdir -p ~/p2b'
+
+      - name: Copy docker-compose.yml to server
+        run: |
+          scp -i ~/.ssh/id_ed25519 \
+            docker-compose.yml \
+            ${{ secrets.HETZNER_USER }}@${{ secrets.HETZNER_HOST }}:~/p2b/docker-compose.yml
+
+      - name: Write .env on server
+        run: |
+          ssh -i ~/.ssh/id_ed25519 \
+            ${{ secrets.HETZNER_USER }}@${{ secrets.HETZNER_HOST }} \
+            'cat > ~/p2b/.env' << 'ENVEOF'
+          DATABASE_URL=mysql://p2b:${{ secrets.DB_PASSWORD }}@db:3306/p2b
+          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+          DB_ROOT_PASSWORD=${{ secrets.DB_ROOT_PASSWORD }}
+          ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}
+          SMTP_HOST=${{ secrets.SMTP_HOST }}
+          SMTP_PORT=${{ secrets.SMTP_PORT }}
+          SMTP_USER=${{ secrets.SMTP_USER }}
+          SMTP_PASS=${{ secrets.SMTP_PASS }}
+          SMTP_FROM=${{ secrets.SMTP_FROM }}
+          ENVEOF
+
       - name: Deploy on Hetzner
         run: |
-          ssh -i ~/.ssh/id_ed25519 ${{ secrets.HETZNER_USER }}@${{ secrets.HETZNER_HOST }} \
-            "cd ~/p2b && \
-             docker compose pull && \
-             docker compose up -d && \
-             docker compose exec -T app npx prisma migrate deploy"
+          # Write GHCR token to a temp file to avoid it appearing in process listings
+          GHCR_TOKEN_FILE=$(mktemp)
+          echo "${{ secrets.GHCR_TOKEN }}" > "$GHCR_TOKEN_FILE"
+
+          ssh -i ~/.ssh/id_ed25519 ${{ secrets.HETZNER_USER }}@${{ secrets.HETZNER_HOST }} "
+            cat /dev/stdin | docker login ghcr.io -u '${{ github.actor }}' --password-stdin &&
+            cd ~/p2b &&
+            docker compose pull &&
+            docker compose up -d
+          " < "$GHCR_TOKEN_FILE"
+
+          rm -f "$GHCR_TOKEN_FILE"

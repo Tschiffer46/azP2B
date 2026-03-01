@@ -1,6 +1,6 @@
 # Padel to Business
 
-Full-stack Next.js 14 website for [padeltobusiness.se](https://padeltobusiness.se) — Sveriges roligaste padelnätverk.
+Full-stack Next.js 15 website for [padeltobusiness.se](https://padeltobusiness.se) — Sveriges roligaste padelnätverk.
 
 ## Prerequisites
 
@@ -48,32 +48,74 @@ npx prisma db seed
 
 ### One-time server setup
 
+Run these commands **once** on your Hetzner server (SSH in first):
+
 ```bash
-# On the server
+# 1. Install Docker (on Debian/Ubuntu Hetzner images)
+curl -fsSL https://get.docker.com | sh
+sudo usermod -aG docker $USER
+# Log out and back in so the group change takes effect
+
+# 2. Create the working directory
 mkdir -p ~/p2b
-# Copy docker-compose.yml + .env to ~/p2b/
-# Fill in all env values
 ```
+
+That's it. The GitHub Actions workflow handles everything else automatically on each deploy:
+- Copies the latest `docker-compose.yml` to `~/p2b/`
+- Writes a `.env` file from your GitHub Secrets
+- Authenticates with GHCR, pulls the new image, restarts containers
+- Runs Prisma database migrations (via the container entrypoint)
 
 ### Required GitHub Secrets
 
 | Secret | Description |
 |--------|-------------|
 | `HETZNER_HOST` | Server IP or hostname |
-| `HETZNER_USER` | SSH username |
-| `HETZNER_SSH_KEY` | Private SSH key (ed25519) |
-| `GHCR_TOKEN` | GitHub PAT with `packages:write` scope |
-| `DB_PASSWORD` | MariaDB user password |
-| `DB_ROOT_PASSWORD` | MariaDB root password |
-| `ADMIN_PASSWORD` | Admin dashboard password |
+| `HETZNER_USER` | SSH username (e.g. `root` or `deploy`) |
+| `HETZNER_SSH_KEY` | Full private SSH key content (e.g. paste `~/.ssh/id_ed25519`) |
+| `GHCR_TOKEN` | GitHub PAT with `packages:read` and `packages:write` scopes |
+| `DB_PASSWORD` | MariaDB user password (choose a strong password) |
+| `DB_ROOT_PASSWORD` | MariaDB root password (choose a strong password) |
+| `ADMIN_PASSWORD` | Password for the `/admin` dashboard |
+
+**Optional secrets** — leave empty to disable outgoing email:
+
+| Secret | Description |
+|--------|-------------|
+| `SMTP_HOST` | SMTP server hostname |
+| `SMTP_PORT` | SMTP port (usually `587`) |
+| `SMTP_USER` | SMTP login username |
+| `SMTP_PASS` | SMTP login password |
+| `SMTP_FROM` | From address, e.g. `info@padeltobusiness.se` |
 
 ### Deploy process
 
-Push to `main` triggers:
-1. Lint (`next lint`)
-2. Build + push Docker image to `ghcr.io/tschiffer46/azp2b:latest`
-3. SSH deploy: `docker compose pull && docker compose up -d`
-4. Prisma migrations: `docker compose exec app npx prisma migrate deploy`
+Push to `main` automatically:
+1. Runs `next lint`
+2. Builds and pushes Docker image to `ghcr.io/tschiffer46/azp2b:latest`
+3. Copies `docker-compose.yml` to `~/p2b/` on the server
+4. Writes `.env` to `~/p2b/` from GitHub Secrets
+5. Logs in to GHCR on the server and pulls the new image
+6. Restarts containers with `docker compose up -d`
+7. Container entrypoint runs `prisma migrate deploy` before starting the Next.js server
+
+### Verifying after the first deploy
+
+Once the Actions deploy job goes green, SSH into the server and check:
+
+```bash
+# All containers should show as "running"
+docker compose -f ~/p2b/docker-compose.yml ps
+
+# Tail app logs (Ctrl-C to stop)
+docker compose -f ~/p2b/docker-compose.yml logs -f app
+
+# Confirm the DB tables were created (enter the DB_PASSWORD you set in GitHub Secrets)
+docker compose -f ~/p2b/docker-compose.yml exec db \
+  mariadb -u p2b -p p2b -e "SHOW TABLES;"
+```
+
+The site is served on port **3000**. Point your reverse proxy (nginx/Caddy) or Hetzner load balancer at `:3000`.
 
 ---
 
