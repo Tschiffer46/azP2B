@@ -75,10 +75,28 @@ You should see `docker` in the list, e.g.:
 
 azP2B's container listens on port **3000**. Nginx needs to forward traffic from `padeltobusiness.se` to it — exactly like it does for your other sites.
 
-Still as `root`, create the config file:
+### 5a — Find the correct Nginx config directory
+
+This Hetzner server does **not** use the standard `sites-available`/`sites-enabled` layout. First, confirm the directory where your existing sites are configured:
 
 ```bash
-nano /etc/nginx/sites-available/padeltobusiness.se
+ls /etc/nginx/
+```
+
+You should see a folder called **`client-azp2b`** (or similar — check which name matches the other sites):
+
+```bash
+ls /etc/nginx/client-azp2b/
+```
+
+You should see config files for `azprofil.se` and/or `agiletransition.se` in there. That is the correct directory.
+
+### 5b — Create the config file
+
+Still as `root`, create the file in that same directory:
+
+```bash
+nano /etc/nginx/client-azp2b/padeltobusiness.se.conf
 ```
 
 Paste this content exactly:
@@ -104,14 +122,13 @@ server {
 
 Save and close (`Ctrl+O`, `Enter`, `Ctrl+X`).
 
-Enable the site and test the config:
+### 5c — Test and reload Nginx
 
 ```bash
-ln -s /etc/nginx/sites-available/padeltobusiness.se /etc/nginx/sites-enabled/
 nginx -t
 ```
 
-You should see `syntax is ok` and `test is successful`. Then reload Nginx:
+You should see `syntax is ok` and `test is successful`. Then reload:
 
 ```bash
 systemctl reload nginx
@@ -190,6 +207,9 @@ Finally, open `https://padeltobusiness.se` in a browser. You should be redirecte
 ---
 
 ## Troubleshooting
+
+**`nano /etc/nginx/sites-available/...` gives "No such file or directory"**  
+This server uses Hetzner's `client-azp2b` directory layout, not the standard Debian `sites-available`/`sites-enabled` layout. Use the path in Step 5 above: `/etc/nginx/client-azp2b/padeltobusiness.se.conf`. Run `ls /etc/nginx/` first to confirm the exact directory name.
 
 **`docker: permission denied` when running as deploy**  
 The group change hasn't taken effect. In Terminus, close the `deploy` session and open a fresh one, then retry.
