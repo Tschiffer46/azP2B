@@ -1,0 +1,133 @@
+{
+  "nav": {
+    "home": "Hem",
+    "calendar": "Kalender",
+    "membership": "Bli medlem",
+    "findUs": "Hitta hit"
+  },
+  "hero": {
+    "label": "Padel to Business",
+    "headline": "Sveriges roligaste padelnätverk",
+    "ctaContact": "Kontakta oss",
+    "ctaMembership": "Bli medlem"
+  },
+  "about": {
+    "headline": "Tre vänner. Tre branscher. Ett gemensamt mål.",
+    "gustav": "Gustav (Azrak Padel) – tidigare känd som padelkungen av Skåne. En eldsjäl som arrangerat enorma turneringar och älskar padel mer än livet självt.",
+    "brian": "Brian – mannen med bättre kaffe på kontoret än Espresso House. En nätverksmästare, oavsett om det gäller affärer eller padelmatcher.",
+    "jonte": "Jonte – spindeln i nätet, alltid där det händer och alltid med koll på läget.",
+    "teamPhotoAlt": "Grundarnas teamfoto"
+  },
+  "features": {
+    "headline": "Vad kan du förvänta dig av Padel to Business?",
+    "item1": "Regelbundna padeltävlingar och turneringar för att nätverka på ett avslappnat sätt.",
+    "item2": "Möjligheter att träffa andra företagare inom olika branscher.",
+    "item3": "Inspiration och idéutbyte i en informell miljö.",
+    "item4": "Flera olika aktiviteter som främjar både personlig och affärsmässig utveckling."
+  },
+  "pricing": {
+    "headline": "Kontakta oss och bli medlem idag",
+    "body": "Vill du bli medlem i Padel to Business? Kontakta Gustav, Jonathan eller Brian nedan med kontaktuppgifter och vilket företag du vill registrera så återkommer vi.",
+    "standard": {
+      "name": "Standard",
+      "price": "8 995 kr"
+    },
+    "exclusive": {
+      "name": "Exklusiv",
+      "price": "10 995 kr",
+      "tag": "exklusivitet i din bransch"
+    }
+  },
+  "contact": {
+    "headline": "Kontakta oss",
+    "email": "info@padeltobusiness.se",
+    "venue": "Malmö Padel, Lommavägen 39, 232 35 Arlöv",
+    "mapsLinkText": "Visa på Google Maps"
+  },
+  "membership": {
+    "pageTitle": "Bli Medlem",
+    "pageDescription": "Gå med i Padel to Business – Sveriges roligaste affärsnätverk för padel.",
+    "formHeadline": "Ansök om medlemskap",
+    "name": "Namn",
+    "namePlaceholder": "Ditt namn",
+    "email": "E-post",
+    "emailPlaceholder": "din@email.se",
+    "company": "Företag",
+    "companyPlaceholder": "Ditt företag",
+    "industry": "Bransch",
+    "industryPlaceholder": "Din bransch",
+    "tier": "Medlemskapsnivå",
+    "tierStandard": "Standard – 8 995 kr",
+    "tierExclusive": "Exklusiv – 10 995 kr (exklusivitet i din bransch)",
+    "submit": "Skicka ansökan",
+    "submitting": "Skickar...",
+    "success": "Tack! Vi återkommer till dig inom kort.",
+    "errorRequired": "Vänligen fyll i alla obligatoriska fält.",
+    "errorEmail": "Ange en giltig e-postadress.",
+    "errorGeneric": "Något gick fel. Försök igen.",
+    "errorDuplicate": "Den här e-postadressen är redan registrerad."
+  },
+  "calendar": {
+    "pageTitle": "Kalender & Bokning",
+    "pageDescription": "Se kommande evenemang och boka din plats.",
+    "headline": "Kommande evenemang",
+    "spotsLeft": "platser kvar",
+    "bookButton": "Boka plats",
+    "fullEvent": "Fullbokat",
+    "bookingFormHeadline": "Boka plats",
+    "bookingName": "Namn",
+    "bookingEmail": "E-post",
+    "bookingSubmit": "Bekräfta bokning",
+    "bookingSubmitting": "Bokar...",
+    "bookingSuccess": "Din bokning är bekräftad! Kolla din e-post.",
+    "bookingErrorRequired": "Fyll i namn och e-post.",
+    "bookingErrorEmail": "Ange en giltig e-postadress.",
+    "bookingErrorGeneric": "Något gick fel. Försök igen.",
+    "bookingErrorDuplicate": "Du har redan bokat den här händelsen.",
+    "close": "Stäng"
+  },
+  "findUs": {
+    "pageTitle": "Hitta Hit",
+    "pageDescription": "Hitta oss på Malmö Padel i Arlöv.",
+    "headline": "Hitta hit",
+    "address": "Malmö Padel, Lommavägen 39, 232 35 Arlöv",
+    "email": "info@padeltobusiness.se",
+    "mapsAlt": "Karta till Malmö Padel"
+  },
+  "admin": {
+    "loginTitle": "Admin-inloggning",
+    "passwordLabel": "Lösenord",
+    "loginButton": "Logga in",
+    "loginError": "Felaktigt lösenord.",
+    "dashboardTitle": "Admin – Dashboard",
+    "todoWarning": "⚠️ TODO: Replace cookie auth with proper authentication before going live",
+    "membersTab": "Medlemmar",
+    "bookingsTab": "Bokningar",
+    "memberName": "Namn",
+    "memberEmail": "E-post",
+    "memberCompany": "Företag",
+    "memberIndustry": "Bransch",
+    "memberTier": "Nivå",
+    "memberCreatedAt": "Registrerad",
+    "bookingEvent": "Evenemang",
+    "bookingName": "Namn",
+    "bookingEmail": "E-post",
+    "bookingCreatedAt": "Bokad"
+  },
+  "footer": {
+    "tagline": "Tre vänner, ett gemensamt driv. Padel to Business förenar affärer, gemenskap och rörelse i ett nätverk där relationer stärks och nya möjligheter skapas – både på och utanför padelbanan.",
+    "address": "Malmö Padel, Lommavägen 39, 232 35 Arlöv",
+    "email": "info@padeltobusiness.se",
+    "linkedIn": "LinkedIn",
+    "copyright": "Padel to Business. All rights reserved.",
+    "logoAlt": "Padel to Business logo"
+  },
+  "cookie": {
+    "message": "Vi använder cookies för att förbättra din upplevelse på webbplatsen.",
+    "accept": "Acceptera"
+  },
+  "lang": {
+    "sv": "SV",
+    "da": "DA"
+  }
+}
