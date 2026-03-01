@@ -1,32 +1,15 @@
-# Required GitHub Secrets:
-#   SERVER_HOST       - IP or hostname of the Hetzner server
-#   SERVER_USER       - SSH username (deploy)
-#   SERVER_SSH_KEY    - Private SSH key for the deploy user
-#   DB_PASSWORD       - MariaDB user password
-#   DB_ROOT_PASSWORD  - MariaDB root password
-#   ADMIN_PASSWORD    - Admin dashboard password
-#   SMTP_HOST         - SMTP server hostname (optional — leave empty to disable email)
-#   SMTP_PORT         - SMTP port, e.g. 587 (optional)
-#   SMTP_USER         - SMTP login username (optional)
-#   SMTP_PASS         - SMTP login password (optional)
-#   SMTP_FROM         - From address, e.g. info@padeltobusiness.se (optional)
-#
-# Note: GITHUB_TOKEN is used automatically for GHCR login (no extra secret needed).
-# One-time server setup required before first deploy — see docs/ServerSetup.md
-
 name: Deploy to Hetzner
 
 on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
 
 jobs:
-  lint:
+  build-and-deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -40,216 +23,22 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Lint
-        run: npm run lint
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: lint
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          tags: ghcr.io/tschiffer46/azp2b:latest
+      - name: Build
+        run: npm run build
 
       - name: Setup SSH
-        env:
-          SERVER_HOST: ${{ secrets.SERVER_HOST }}
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          [ -n "$SERVER_HOST" ] || { echo "Error: SERVER_HOST secret is not set"; exit 1; }
-          ssh-keyscan -H "$SERVER_HOST" >> ~/.ssh/known_hosts
+          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Update master docker-compose.yml on server
-        env:
-          SERVER_HOST: ${{ secrets.SERVER_HOST }}
-          SERVER_USER: ${{ secrets.SERVER_USER }}
+      - name: Deploy to server
         run: |
-          # Write the update script to a temp file (single-quoted heredoc keeps ${...} as literals)
-          cat << 'PYEOF' > /tmp/update_compose.py
-          import re
-
-          COMPOSE_FILE = '/home/deploy/hosting/docker-compose.yml'
-
-          NEW_AZP2B_BLOCK = (
-              '  azp2b:\n'
-              '    image: ghcr.io/tschiffer46/azp2b:latest\n'
-              '    container_name: azp2b\n'
-              '    restart: unless-stopped\n'
-              '    env_file:\n'
-              '      - .env.p2b\n'
-              '    depends_on:\n'
-              '      p2b-db:\n'
-              '        condition: service_healthy\n'
-              '    networks:\n'
-              '      - web\n'
-          )
-
-          NEW_P2B_DB_BLOCK = (
-              '  p2b-db:\n'
-              '    image: mariadb:11\n'
-              '    container_name: p2b-db\n'
-              '    restart: unless-stopped\n'
-              '    env_file:\n'
-              '      - .env.p2b\n'
-              '    volumes:\n'
-              '      - p2b_db_data:/var/lib/mysql\n'
-              '    healthcheck:\n'
-              '      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]\n'
-              '      interval: 10s\n'
-              '      timeout: 5s\n'
-              '      retries: 5\n'
-              '      start_period: 120s\n'
-              '    networks:\n'
-              '      - web\n'
-          )
-
-          with open(COMPOSE_FILE) as f:
-              content = f.read()
-
-          # Replace the azp2b service block (everything from "  azp2b:" until
-          # the next service or top-level key)
-          content = re.sub(
-              r'^  azp2b:\n(?:(?!\S|  \S).*\n)*',
-              NEW_AZP2B_BLOCK + '\n',
-              content,
-              flags=re.MULTILINE
-          )
-
-          # Replace the p2b-db service block if it already exists, otherwise
-          # insert it after the azp2b block. This ensures healthcheck config
-          # is always up-to-date on the server.
-          if re.search(r'^  p2b-db:', content, re.MULTILINE):
-              content = re.sub(
-                  r'^  p2b-db:\n(?:(?!\S|  \S).*\n)*',
-                  NEW_P2B_DB_BLOCK + '\n',
-                  content,
-                  flags=re.MULTILINE
-              )
-          else:
-              content = content.replace(
-                  NEW_AZP2B_BLOCK + '\n',
-                  NEW_AZP2B_BLOCK + '\n' + NEW_P2B_DB_BLOCK + '\n'
-              )
-
-          # Add p2b_db_data named volume if not already present
-          if not re.search(r'^  p2b_db_data:', content, re.MULTILINE):
-              if re.search(r'^volumes:', content, re.MULTILINE):
-                  content = re.sub(
-                      r'^(volumes:\n)',
-                      r'\1  p2b_db_data:\n',
-                      content,
-                      flags=re.MULTILINE
-                  )
-              else:
-                  content = content.rstrip('\n') + '\n\nvolumes:\n  p2b_db_data:\n'
-
-          with open(COMPOSE_FILE, 'w') as f:
-              f.write(content)
-
-          print('docker-compose.yml updated successfully')
-          PYEOF
-
-          # Run the script on the server
-          cat /tmp/update_compose.py | ssh -i ~/.ssh/id_ed25519 \
-            "$SERVER_USER"@"$SERVER_HOST" \
-            python3
-
-      - name: Write .env.p2b on server
-        env:
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          DB_ROOT_PASSWORD: ${{ secrets.DB_ROOT_PASSWORD }}
-          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
-          SMTP_HOST: ${{ secrets.SMTP_HOST }}
-          SMTP_PORT: ${{ secrets.SMTP_PORT }}
-          SMTP_USER: ${{ secrets.SMTP_USER }}
-          SMTP_PASS: ${{ secrets.SMTP_PASS }}
-          SMTP_FROM: ${{ secrets.SMTP_FROM }}
-          SERVER_HOST: ${{ secrets.SERVER_HOST }}
-          SERVER_USER: ${{ secrets.SERVER_USER }}
-        run: |
-          {
-            printf 'DATABASE_URL=mysql://p2b:%s@p2b-db:3306/p2b\n' "$DB_PASSWORD"
-            printf 'DB_PASSWORD=%s\n' "$DB_PASSWORD"
-            printf 'DB_ROOT_PASSWORD=%s\n' "$DB_ROOT_PASSWORD"
-            printf 'MARIADB_ROOT_PASSWORD=%s\n' "$DB_ROOT_PASSWORD"
-            printf 'MARIADB_PASSWORD=%s\n' "$DB_PASSWORD"
-            printf 'MARIADB_DATABASE=p2b\n'
-            printf 'MARIADB_USER=p2b\n'
-            printf 'ADMIN_PASSWORD=%s\n' "$ADMIN_PASSWORD"
-            printf 'SMTP_HOST=%s\n' "$SMTP_HOST"
-            printf 'SMTP_PORT=%s\n' "$SMTP_PORT"
-            printf 'SMTP_USER=%s\n' "$SMTP_USER"
-            printf 'SMTP_PASS=%s\n' "$SMTP_PASS"
-            printf 'SMTP_FROM=%s\n' "$SMTP_FROM"
-          } | ssh -i ~/.ssh/id_ed25519 \
-              "$SERVER_USER"@"$SERVER_HOST" \
-              'cat > /home/deploy/hosting/.env.p2b'
-
-      - name: Pull updated images on server
-        env:
-          SERVER_HOST: ${{ secrets.SERVER_HOST }}
-          SERVER_USER: ${{ secrets.SERVER_USER }}
-        run: |
-          ssh -i ~/.ssh/id_ed25519 \
-            "$SERVER_USER"@"$SERVER_HOST" \
-            'docker compose -f /home/deploy/hosting/docker-compose.yml --env-file /home/deploy/hosting/.env.p2b pull azp2b p2b-db'
-
-      - name: Start containers on server
-        env:
-          SERVER_HOST: ${{ secrets.SERVER_HOST }}
-          SERVER_USER: ${{ secrets.SERVER_USER }}
-        run: |
-          cat << 'SHEOF' > /tmp/start_containers.sh
-          #!/bin/bash
-          set -e
-
-          # Start the database container first
-          docker compose -f /home/deploy/hosting/docker-compose.yml \
-            --env-file /home/deploy/hosting/.env.p2b up -d p2b-db
-
-          # Wait up to 5 minutes for the database to become healthy.
-          # On first deploy there is no existing data volume so MariaDB must
-          # initialise from scratch, which can take longer than the default
-          # depends_on wait window.
-          echo "Waiting for p2b-db to become healthy (up to 5 minutes)..."
-          STATUS=""
-          for i in $(seq 1 31); do
-            STATUS=$(docker inspect --format='{{.State.Health.Status}}' p2b-db 2>/dev/null || echo "starting")
-            echo "  attempt $i/31: $STATUS"
-            [ "$STATUS" = "healthy" ] && break
-            sleep 10
-          done
-
-          if [ "$STATUS" != "healthy" ]; then
-            echo "ERROR: p2b-db did not become healthy within 5 minutes"
-            docker logs --tail=50 p2b-db
-            exit 1
-          fi
-
-          echo "p2b-db is healthy — starting azp2b"
-          docker compose -f /home/deploy/hosting/docker-compose.yml \
-            --env-file /home/deploy/hosting/.env.p2b up -d azp2b
-          SHEOF
-
-          cat /tmp/start_containers.sh | ssh -i ~/.ssh/id_ed25519 \
-            "$SERVER_USER"@"$SERVER_HOST" \
-            'bash -s'
+          rsync -avz --delete \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='README.md' \
+            --exclude='node_modules' \
+            -e "ssh -i ~/.ssh/id_ed25519" \
+            ./dist/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:~/hosting/sites/azp2b/dist/
