@@ -6,7 +6,7 @@ Production website for **padeltobusiness.se** — a Swedish padel sports busines
 ## Tech Stack
 | Layer | Technology |
 |-------|-----------|
-| Framework | Next.js 14 (App Router) |
+| Framework | Next.js 15 (App Router) |
 | Language | TypeScript (strict mode) |
 | Styling | Tailwind CSS 3 |
 | Database | MariaDB via Prisma ORM |

@@ -4,7 +4,7 @@
 **padeltobusiness.se** is a Swedish padel sports business networking community founded by three friends (Gustav, Brian, Jonte) with a mission to combine padel sports with business networking.
 
 ## Stack
-Next.js 14 (App Router) · TypeScript · Tailwind CSS · MariaDB / Prisma · Nodemailer · Docker
+Next.js 15 (App Router) · TypeScript · Tailwind CSS · MariaDB / Prisma · Nodemailer · Docker
 
 ## Quick Start
 ```bash

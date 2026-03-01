@@ -7,15 +7,16 @@ import '@/app/globals.css'
 
 interface LocaleLayoutProps {
   children: React.ReactNode
-  params: { locale: string }
+  params: Promise<{ locale: string }>
 }
 
 export async function generateMetadata({
   params,
 }: {
-  params: { locale: string }
+  params: Promise<{ locale: string }>
 }): Promise<Metadata> {
-  const t = getTranslations(params.locale)
+  const { locale } = await params
+  const t = getTranslations(locale)
   return {
     title: 'Padel to Business',
     description: t.hero.headline,
@@ -26,14 +27,15 @@ export async function generateStaticParams() {
   return [{ locale: 'sv' }, { locale: 'da' }]
 }
 
-export default function LocaleLayout({ children, params }: LocaleLayoutProps) {
-  const t = getTranslations(params.locale)
+export default async function LocaleLayout({ children, params }: LocaleLayoutProps) {
+  const { locale } = await params
+  const t = getTranslations(locale)
   return (
-    <html lang={params.locale}>
+    <html lang={locale}>
       <body className="bg-p2b-black text-p2b-white font-sans">
-        <Navbar locale={params.locale} t={t} />
+        <Navbar locale={locale} t={t} />
         <main>{children}</main>
-        <Footer locale={params.locale} t={t} />
+        <Footer locale={locale} t={t} />
         <CookieBanner t={t} />
       </body>
     </html>

@@ -2,19 +2,21 @@ import type { Metadata } from 'next'
 import { getTranslations } from '@/lib/i18n'
 
 interface PageProps {
-  params: { locale: string }
+  params: Promise<{ locale: string }>
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const t = getTranslations(params.locale)
+  const { locale } = await params
+  const t = getTranslations(locale)
   return {
     title: `${t.findUs.pageTitle} — Padel to Business`,
     description: t.findUs.pageDescription,
   }
 }
 
-export default function HittaHitPage({ params }: PageProps) {
-  const t = getTranslations(params.locale)
+export default async function HittaHitPage({ params }: PageProps) {
+  const { locale } = await params
+  const t = getTranslations(locale)
   return (
     <div className="min-h-screen bg-p2b-black py-20">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">

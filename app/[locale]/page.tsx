@@ -6,21 +6,23 @@ import FeatureCard from '@/components/FeatureCard'
 import PricingSection from '@/components/PricingSection'
 
 interface HomePageProps {
-  params: { locale: string }
+  params: Promise<{ locale: string }>
 }
 
 export async function generateMetadata({
   params,
 }: HomePageProps): Promise<Metadata> {
-  const t = getTranslations(params.locale)
+  const { locale } = await params
+  const t = getTranslations(locale)
   return {
     title: `Padel to Business — ${t.hero.headline}`,
     description: t.hero.headline,
   }
 }
 
-export default function HomePage({ params }: HomePageProps) {
-  const t = getTranslations(params.locale)
+export default async function HomePage({ params }: HomePageProps) {
+  const { locale } = await params
+  const t = getTranslations(locale)
 
   const featureItems = [
     t.features.item1,
@@ -31,7 +33,7 @@ export default function HomePage({ params }: HomePageProps) {
 
   return (
     <>
-      <HeroSection locale={params.locale} t={t} />
+      <HeroSection locale={locale} t={t} />
 
       {/* About / Team */}
       <TeamSection t={t} />

@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/db'
 
 export default async function AdminDashboardPage() {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const session = cookieStore.get('admin_session')
 
   if (session?.value !== 'authenticated') {
