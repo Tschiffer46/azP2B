@@ -73,30 +73,43 @@ You should see `docker` in the list, e.g.:
 
 ## Step 5 — Add the Nginx virtual host for padeltobusiness.se
 
-azP2B's container listens on port **3000**. Nginx needs to forward traffic from `padeltobusiness.se` to it — exactly like it does for your other sites.
+azP2B's container listens on port **3000**. Nginx needs to reverse-proxy traffic from `padeltobusiness.se` to it.
 
-### 5a — Find the correct Nginx config directory
+> **Important — azP2B is different from agiletransition.se and azprofil.se**  
+> Those sites are static files deployed via rsync into `~/hosting/sites/<client>/dist/` and Nginx serves them from disk.  
+> azP2B runs in a Docker container — there are **no files to sync** and **no `~/hosting/sites/` directory to create**. Nginx simply forwards requests to the container.
 
-This Hetzner server does **not** use the standard `sites-available`/`sites-enabled` layout. First, confirm the directory where your existing sites are configured:
+### 5a — Find where the existing site configs live
+
+This server does **not** use the standard Debian `sites-available`/`sites-enabled` layout.  
+Run this to see which directories Nginx is currently loading configs from:
 
 ```bash
-ls /etc/nginx/
+nginx -T 2>/dev/null | grep "^# configuration file"
 ```
 
-You should see a folder called **`client-azp2b`** (or similar — check which name matches the other sites):
+You should see paths like:
+```
+# configuration file /etc/nginx/nginx.conf:
+# configuration file /etc/nginx/conf.d/agiletransition.se.conf:
+# configuration file /etc/nginx/conf.d/azprofil.se.conf:
+```
+
+This tells you the exact directory. It is almost certainly **`/etc/nginx/conf.d/`**.  
+Double-check with:
 
 ```bash
-ls /etc/nginx/client-azp2b/
+ls /etc/nginx/conf.d/
 ```
 
-You should see config files for `azprofil.se` and/or `agiletransition.se` in there. That is the correct directory.
+You should see `.conf` files for `agiletransition.se` and `azprofil.se` in there.
 
 ### 5b — Create the config file
 
 Still as `root`, create the file in that same directory:
 
 ```bash
-nano /etc/nginx/client-azp2b/padeltobusiness.se.conf
+nano /etc/nginx/conf.d/padeltobusiness.se.conf
 ```
 
 Paste this content exactly:
@@ -208,8 +221,8 @@ Finally, open `https://padeltobusiness.se` in a browser. You should be redirecte
 
 ## Troubleshooting
 
-**`nano /etc/nginx/sites-available/...` gives "No such file or directory"**  
-This server uses Hetzner's `client-azp2b` directory layout, not the standard Debian `sites-available`/`sites-enabled` layout. Use the path in Step 5 above: `/etc/nginx/client-azp2b/padeltobusiness.se.conf`. Run `ls /etc/nginx/` first to confirm the exact directory name.
+**`nano /etc/nginx/sites-available/...` or `nano /etc/nginx/client-azp2b/...` gives "No such file or directory"**  
+This server does not use the standard `sites-available`/`sites-enabled` layout, and there is no `/etc/nginx/client-azp2b/` directory. The existing site configs (agiletransition.se, azprofil.se) are in `/etc/nginx/conf.d/`. Run `nginx -T 2>/dev/null | grep "^# configuration file"` to confirm the exact path, then follow Step 5 above.
 
 **`docker: permission denied` when running as deploy**  
 The group change hasn't taken effect. In Terminus, close the `deploy` session and open a fresh one, then retry.
