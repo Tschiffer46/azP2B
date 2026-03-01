@@ -147,7 +147,7 @@ jobs:
               )
 
           # Add p2b_db_data named volume if not already present
-          if 'p2b_db_data' not in content:
+          if not re.search(r'^  p2b_db_data:', content, re.MULTILINE):
               if re.search(r'^volumes:', content, re.MULTILINE):
                   content = re.sub(
                       r'^(volumes:\n)',
@@ -203,7 +203,7 @@ jobs:
         run: |
           ssh -i ~/.ssh/id_ed25519 \
             "$SERVER_USER"@"$SERVER_HOST" \
-            'docker compose -f /home/deploy/hosting/docker-compose.yml pull azp2b p2b-db'
+            'docker compose -f /home/deploy/hosting/docker-compose.yml --env-file /home/deploy/hosting/.env.p2b pull azp2b p2b-db'
 
       - name: Start containers on server
         env:
@@ -212,4 +212,4 @@ jobs:
         run: |
           ssh -i ~/.ssh/id_ed25519 \
             "$SERVER_USER"@"$SERVER_HOST" \
-            'docker compose -f /home/deploy/hosting/docker-compose.yml up -d azp2b p2b-db'
+            'docker compose -f /home/deploy/hosting/docker-compose.yml --env-file /home/deploy/hosting/.env.p2b up -d azp2b p2b-db'
