@@ -2,7 +2,6 @@
 #   HETZNER_HOST      - IP or hostname of the Hetzner server
 #   HETZNER_USER      - SSH username (deploy)
 #   HETZNER_SSH_KEY   - Private SSH key for the deploy user
-#   GHCR_TOKEN        - GitHub Personal Access Token (packages:read + packages:write)
 #   DB_PASSWORD       - MariaDB user password
 #   DB_ROOT_PASSWORD  - MariaDB root password
 #   ADMIN_PASSWORD    - Admin dashboard password
@@ -12,6 +11,7 @@
 #   SMTP_PASS         - SMTP login password (optional)
 #   SMTP_FROM         - From address, e.g. info@padeltobusiness.se (optional)
 #
+# Note: GITHUB_TOKEN is used automatically for GHCR login (no extra secret needed).
 # One-time server setup required before first deploy — see docs/ServerSetup.md
 
 name: Deploy to Hetzner
@@ -59,7 +59,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GHCR_TOKEN }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
