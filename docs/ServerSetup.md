@@ -55,8 +55,9 @@ The old static `azp2b` container served files on port **80**. The new Next.js ap
 3. Click **Proxy Hosts** in the menu
 4. Find the proxy host for `azp2b.agiletransition.se` (or `padeltobusiness.se` once DNS is set up)
 5. Click the **three dots** on the right → **Edit**
-6. Change the **Forward Port** from `80` to `3000`
-7. Click **Save**
+6. Make sure the **Forward Hostname / IP** is set to `azp2b` (the container name — this is how Nginx Proxy Manager reaches the app through the Docker network)
+7. Change the **Forward Port** from `80` to `3000`
+8. Click **Save**
 
 That's it. The proxy host is now pointing to the correct port on the new container.
 
