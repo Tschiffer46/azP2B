@@ -110,11 +110,6 @@ jobs:
               '    restart: unless-stopped\n'
               '    env_file:\n'
               '      - .env.p2b\n'
-              '    environment:\n'
-              '      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}\n'
-              '      MARIADB_DATABASE: p2b\n'
-              '      MARIADB_USER: p2b\n'
-              '      MARIADB_PASSWORD: ${DB_PASSWORD}\n'
               '    volumes:\n'
               '      - p2b_db_data:/var/lib/mysql\n'
               '    healthcheck:\n'
@@ -195,6 +190,10 @@ jobs:
             printf 'DATABASE_URL=mysql://p2b:%s@p2b-db:3306/p2b\n' "$DB_PASSWORD"
             printf 'DB_PASSWORD=%s\n' "$DB_PASSWORD"
             printf 'DB_ROOT_PASSWORD=%s\n' "$DB_ROOT_PASSWORD"
+            printf 'MARIADB_ROOT_PASSWORD=%s\n' "$DB_ROOT_PASSWORD"
+            printf 'MARIADB_PASSWORD=%s\n' "$DB_PASSWORD"
+            printf 'MARIADB_DATABASE=p2b\n'
+            printf 'MARIADB_USER=p2b\n'
             printf 'ADMIN_PASSWORD=%s\n' "$ADMIN_PASSWORD"
             printf 'SMTP_HOST=%s\n' "$SMTP_HOST"
             printf 'SMTP_PORT=%s\n' "$SMTP_PORT"
