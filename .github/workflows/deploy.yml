@@ -219,6 +219,38 @@ jobs:
           SERVER_HOST: ${{ secrets.SERVER_HOST }}
           SERVER_USER: ${{ secrets.SERVER_USER }}
         run: |
-          ssh -i ~/.ssh/id_ed25519 \
+          cat << 'SHEOF' > /tmp/start_containers.sh
+          #!/bin/bash
+          set -e
+
+          # Start the database container first
+          docker compose -f /home/deploy/hosting/docker-compose.yml \
+            --env-file /home/deploy/hosting/.env.p2b up -d p2b-db
+
+          # Wait up to 5 minutes for the database to become healthy.
+          # On first deploy there is no existing data volume so MariaDB must
+          # initialise from scratch, which can take longer than the default
+          # depends_on wait window.
+          echo "Waiting for p2b-db to become healthy (up to 5 minutes)..."
+          STATUS=""
+          for i in $(seq 1 31); do
+            STATUS=$(docker inspect --format='{{.State.Health.Status}}' p2b-db 2>/dev/null || echo "starting")
+            echo "  attempt $i/31: $STATUS"
+            [ "$STATUS" = "healthy" ] && break
+            sleep 10
+          done
+
+          if [ "$STATUS" != "healthy" ]; then
+            echo "ERROR: p2b-db did not become healthy within 5 minutes"
+            docker logs --tail=50 p2b-db
+            exit 1
+          fi
+
+          echo "p2b-db is healthy — starting azp2b"
+          docker compose -f /home/deploy/hosting/docker-compose.yml \
+            --env-file /home/deploy/hosting/.env.p2b up -d azp2b
+          SHEOF
+
+          cat /tmp/start_containers.sh | ssh -i ~/.ssh/id_ed25519 \
             "$SERVER_USER"@"$SERVER_HOST" \
-            'docker compose -f /home/deploy/hosting/docker-compose.yml --env-file /home/deploy/hosting/.env.p2b up -d azp2b p2b-db'
+            'bash -s'
