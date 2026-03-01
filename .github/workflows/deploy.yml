@@ -131,9 +131,9 @@ jobs:
               content = f.read()
 
           # Replace the azp2b service block (everything from "  azp2b:" until
-          # the next top-level 2-space-indented service key)
+          # the next service or top-level key)
           content = re.sub(
-              r'^  azp2b:\n(?:(?!  \S).*\n)*',
+              r'^  azp2b:\n(?:(?!\S|  \S).*\n)*',
               NEW_AZP2B_BLOCK + '\n',
               content,
               flags=re.MULTILINE
@@ -144,7 +144,7 @@ jobs:
           # is always up-to-date on the server.
           if re.search(r'^  p2b-db:', content, re.MULTILINE):
               content = re.sub(
-                  r'^  p2b-db:\n(?:(?!  \S).*\n)*',
+                  r'^  p2b-db:\n(?:(?!\S|  \S).*\n)*',
                   NEW_P2B_DB_BLOCK + '\n',
                   content,
                   flags=re.MULTILINE
