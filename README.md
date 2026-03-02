@@ -33,8 +33,30 @@ npm run build
 
 Output is in `dist/`.
 
-## Deploy
+## Deployment
 
-Pushed to `main` → GitHub Actions builds and rsyncs `dist/` to `~/hosting/sites/azp2b/dist/` on the Hetzner server.
+This is a **Vite + React + Tailwind CSS** static site for **padeltobusiness.se**.
 
-Required GitHub secrets: `SERVER_HOST`, `SERVER_USER`, `SERVER_SSH_KEY`.
+Deployed via **GitHub Actions** to a Hetzner server on every push to `main`.
+
+### Required GitHub Secrets
+
+| Secret | Description |
+|---|---|
+| `SERVER_HOST` | IP address or hostname of the Hetzner server |
+| `SERVER_USER` | SSH username (`deploy`) |
+| `SERVER_SSH_KEY` | Private SSH key content for authentication |
+
+To add secrets: GitHub repo → Settings → Secrets and variables → Actions → New repository secret.
+
+### How it works
+
+The workflow builds the project and rsyncs `./dist/` to `~/hosting/sites/client-azp2b/dist/` on the server.
+
+### Server prerequisites (one-time setup)
+
+1. Create the target directory as the `deploy` user:
+   ```bash
+   mkdir -p ~/hosting/sites/client-azp2b/dist
+   ```
+2. Ensure Nginx is configured to serve from that directory. Config file: `/etc/nginx/conf.d/padeltobusiness.se.conf`
