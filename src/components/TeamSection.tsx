@@ -25,11 +25,13 @@ export default function TeamSection() {
             </div>
           </div>
 
-          {/* Team photo placeholder */}
-          <div className="bg-p2b-darker rounded-xl aspect-[3/2] flex items-center justify-center">
-            <p className="text-p2b-grey text-sm text-center px-8">
-              {t.about.teamPhotoAlt}
-            </p>
+          {/* Team photo */}
+          <div className="rounded-xl overflow-hidden aspect-[3/2]">
+            <img
+              src="/assets/team/founders.jpg"
+              alt={t.about.teamPhotoAlt}
+              className="w-full h-full object-cover"
+            />
           </div>
         </div>
       </div>

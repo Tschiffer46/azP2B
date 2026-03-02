@@ -19,9 +19,11 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
-            <span className="text-p2b-lime font-bold text-xl tracking-tight">
-              P2B
-            </span>
+            <img
+              src="/assets/logo/logo.png"
+              alt="P2B"
+              className="h-8 w-auto"
+            />
           </Link>
 
           {/* Desktop links */}

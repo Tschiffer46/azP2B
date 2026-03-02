@@ -7,8 +7,13 @@ export default function HeroSection() {
       {/* Background overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-p2b-black/60 via-p2b-black/40 to-p2b-black z-10" />
 
-      {/* Background placeholder */}
-      <div className="absolute inset-0 bg-p2b-darker" aria-hidden="true" />
+      {/* Background image */}
+      <img
+        src="/assets/hero/hero.jpg"
+        alt=""
+        aria-hidden="true"
+        className="absolute inset-0 w-full h-full object-cover"
+      />
 
       {/* Content */}
       <div className="relative z-20 text-center px-4 max-w-4xl mx-auto">
