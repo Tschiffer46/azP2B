@@ -16,6 +16,9 @@ export default function CalendarPage() {
           <p className="text-p2b-grey mb-8 leading-relaxed">
             {t.calendar.contactBody}
           </p>
+          <p className="text-p2b-grey text-sm italic mt-4 mb-8">
+            {t.calendar.upcomingPlaceholder}
+          </p>
           <a
             href="mailto:info@padeltobusiness.se"
             className="inline-block bg-p2b-lime text-p2b-black font-bold px-8 py-4 rounded-lg hover:bg-lime-300 transition-colors text-sm tracking-wide"

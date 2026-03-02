@@ -7,7 +7,36 @@ export default function MembershipPage() {
         <h1 className="text-4xl font-black text-p2b-white mb-2">
           {t.membership.pageTitle}
         </h1>
-        <p className="text-p2b-grey mb-12">{t.membership.pageDescription}</p>
+        <p className="text-p2b-grey mb-4">{t.membership.pageDescription}</p>
+        <p className="text-p2b-grey mb-8 leading-relaxed">{t.membership.intro}</p>
+
+        {/* How to join */}
+        <h2 className="text-2xl font-bold text-p2b-white mb-4">
+          {t.membership.howToJoinHeadline}
+        </h2>
+        <ol className="list-decimal list-inside space-y-3 text-p2b-grey mb-12">
+          <li>{t.membership.howToJoinStep1}</li>
+          <li>{t.membership.howToJoinStep2}</li>
+          <li>{t.membership.howToJoinStep3}</li>
+        </ol>
+
+        {/* Benefits */}
+        <h2 className="text-2xl font-bold text-p2b-white mb-4">
+          {t.membership.benefitsHeadline}
+        </h2>
+        <ul className="space-y-3 text-p2b-grey mb-12">
+          {[
+            t.membership.benefit1,
+            t.membership.benefit2,
+            t.membership.benefit3,
+            t.membership.benefit4,
+          ].map((benefit) => (
+            <li key={benefit} className="flex items-start gap-2">
+              <span className="text-p2b-lime mt-0.5">✓</span>
+              <span>{benefit}</span>
+            </li>
+          ))}
+        </ul>
 
         {/* Pricing cards */}
         <div className="grid grid-cols-1 gap-6 mb-12">
@@ -15,9 +44,10 @@ export default function MembershipPage() {
             <h3 className="text-p2b-white font-bold text-xl mb-2">
               {t.pricing.standard.name}
             </h3>
-            <p className="text-p2b-lime text-3xl font-black">
+            <p className="text-p2b-lime text-3xl font-black mb-3">
               {t.pricing.standard.price}
             </p>
+            <p className="text-p2b-grey text-sm">{t.pricing.standard.description}</p>
           </div>
 
           <div className="bg-p2b-darker rounded-xl p-8 border border-p2b-lime/40">
@@ -27,7 +57,8 @@ export default function MembershipPage() {
             <p className="text-p2b-lime text-3xl font-black mb-2">
               {t.pricing.exclusive.price}
             </p>
-            <p className="text-p2b-grey text-sm">{t.pricing.exclusive.tag}</p>
+            <p className="text-p2b-grey text-sm mb-3">{t.pricing.exclusive.tag}</p>
+            <p className="text-p2b-grey text-sm">{t.pricing.exclusive.description}</p>
           </div>
         </div>
 
