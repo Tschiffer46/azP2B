@@ -50,6 +50,17 @@ export default function Footer() {
 
         <div className="mt-8 pt-8 border-t border-white/10 text-center text-p2b-grey text-xs">
           © {new Date().getFullYear()} {t.footer.copyright}
+          <p className="mt-2">
+            {t.footer.madeBy}{' '}
+            <a
+              href="https://agiletransition.se"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-p2b-lime hover:underline"
+            >
+              ATM AB
+            </a>
+          </p>
         </div>
       </div>
     </footer>

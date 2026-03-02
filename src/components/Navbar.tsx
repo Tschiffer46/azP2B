@@ -20,7 +20,7 @@ export default function Navbar() {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
             <img
-              src="/assets/logo/logo.png"
+              src="/assets/logo/logo.webp"
               alt="P2B"
               className="h-8 w-auto"
             />

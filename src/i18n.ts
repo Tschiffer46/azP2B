@@ -34,11 +34,13 @@ const t = {
     standard: {
       name: 'Standard',
       price: '8 995 kr',
+      description: 'Medlemskap i nätverket med tillgång till alla evenemang och turneringar.',
     },
     exclusive: {
       name: 'Exklusiv',
       price: '10 995 kr',
       tag: 'exklusivitet i din bransch',
+      description: 'Allt i Standard plus exklusivitet inom din bransch – ingen konkurrent i nätverket.',
     },
   },
   contact: {
@@ -50,6 +52,16 @@ const t = {
   membership: {
     pageTitle: 'Bli Medlem',
     pageDescription: 'Gå med i Padel to Business – Sveriges roligaste affärsnätverk för padel.',
+    intro: 'Padel to Business är ett nätverk där affärer, gemenskap och rörelse förenas. Vi stärker relationer och skapar nya möjligheter – både på och utanför padelbanan. Nätverket är öppet för både padelentusiaster och nybörjare.',
+    howToJoinHeadline: 'Så blir du medlem',
+    howToJoinStep1: 'Kontakta Gustav, Jonathan eller Brian via e-post.',
+    howToJoinStep2: 'Uppge dina kontaktuppgifter och vilket företag du vill registrera.',
+    howToJoinStep3: 'Vi återkommer med mer information och välkomnar dig till nätverket.',
+    benefitsHeadline: 'Som medlem får du',
+    benefit1: 'Regelbundna padeltävlingar och turneringar',
+    benefit2: 'Möjligheter att träffa andra företagare inom olika branscher',
+    benefit3: 'Inspiration och idéutbyte i en avslappnad miljö',
+    benefit4: 'Aktiviteter som främjar både personlig och affärsmässig utveckling',
     standard: 'Standard – 8 995 kr',
     exclusive: 'Exklusiv – 10 995 kr (exklusivitet i din bransch)',
     applyByEmail: 'Ansök via e-post',
@@ -60,6 +72,7 @@ const t = {
     headline: 'Kommande evenemang',
     contactBooking: 'Kontakta oss för bokning',
     contactBody: 'Vill du boka en plats på ett kommande evenemang? Kontakta oss så hjälper vi dig.',
+    upcomingPlaceholder: 'Framtida evenemang kommer synas här.',
   },
   findUs: {
     pageTitle: 'Hitta Hit',
@@ -77,6 +90,7 @@ const t = {
     linkedIn: 'LinkedIn',
     copyright: 'Padel to Business. All rights reserved.',
     logoAlt: 'Padel to Business logo',
+    madeBy: 'Webbplats skapad av',
   },
 }
 
