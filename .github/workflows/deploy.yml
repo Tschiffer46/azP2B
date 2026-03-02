@@ -1,3 +1,10 @@
+# Required GitHub Secrets (same names used across all ATM AB deployments):
+#   SERVER_HOST     - IP address or hostname of the Hetzner server
+#   SERVER_USER     - SSH username (deploy)
+#   SERVER_SSH_KEY  - Private SSH key content for authentication
+#
+# To add secrets: GitHub repo → Settings → Secrets and variables → Actions → New repository secret
+
 name: Deploy to Hetzner
 
 on:
@@ -33,11 +40,6 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Prepare remote directory
-        run: |
-          ssh -i ~/.ssh/id_ed25519 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
-            "sudo mkdir -p ~/hosting/sites/azp2b/dist && sudo chown -R \$(id -u):\$(id -g) ~/hosting/sites/azp2b/dist"
-
       - name: Deploy to server
         run: |
           rsync -avz --delete \
@@ -46,4 +48,4 @@ jobs:
             --exclude='README.md' \
             --exclude='node_modules' \
             -e "ssh -i ~/.ssh/id_ed25519" \
-            ./dist/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:~/hosting/sites/azp2b/dist/
+            ./dist/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:~/hosting/sites/client-azp2b/dist/
