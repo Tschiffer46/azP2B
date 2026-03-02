@@ -53,7 +53,7 @@ export default function Footer() {
           <p className="mt-2">
             {t.footer.madeBy}{' '}
             <a
-              href="https://agiletransition.se"
+              href="https://hemsidor.agiletransition.se"
               target="_blank"
               rel="noopener noreferrer"
               className="text-p2b-lime hover:underline"
